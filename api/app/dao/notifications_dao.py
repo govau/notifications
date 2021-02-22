@@ -31,6 +31,7 @@ from app.models import (
     Service,
     Template,
     TemplateHistory,
+    Batch,
     KEY_TYPE_NORMAL,
     KEY_TYPE_TEST,
     LETTER_TYPE,
@@ -108,18 +109,42 @@ def dao_get_last_template_usage(template_id, template_type):
     ).first()
 
 
-@statsd(namespace="dao")
-@transactional
-def dao_create_notification(notification):
+def dao_create_notification_records(notification, scheduled_for=None):
     if not notification.id:
         # need to populate defaulted fields before we create the notification history object
         notification.id = create_uuid()
     if not notification.status:
         notification.status = NOTIFICATION_CREATED
 
-    db.session.add(notification)
+    yield notification
+
     if _should_record_notification_in_history_table(notification):
-        db.session.add(NotificationHistory.from_original(notification))
+        yield NotificationHistory.from_original(notification)
+
+    if scheduled_for:
+        yield ScheduledNotification.for_notification(notification.id, scheduled_for)
+
+
+@statsd(namespace="dao")
+@transactional
+def dao_create_notification(notification, scheduled_for=None):
+    for record in dao_create_notification_records(notification, scheduled_for=scheduled_for):
+        db.session.add(record)
+
+
+@statsd(namespace="dao")
+@transactional
+def dao_create_notifications(notifications, scheduled_for=None):
+    notification_records = []
+    notification_extra_records = []
+
+    for notification in notifications:
+        record, *extra_records = dao_create_notification_records(notification, scheduled_for=scheduled_for)
+        notification_records.append(record)
+        notification_extra_records.extend(extra_records)
+
+    db.session.bulk_save_objects(notification_records + notification_extra_records)
+    return notification_records
 
 
 def _should_record_notification_in_history_table(notification):
@@ -266,7 +291,9 @@ def get_notifications_for_service(
     include_jobs=False,
     include_from_test_key=False,
     older_than=None,
-    client_reference=None
+    client_reference=None,
+    batch_id=None,
+    batch_reference=None,
 ):
     if page_size is None:
         page_size = current_app.config['PAGE_SIZE']
@@ -294,7 +321,13 @@ def get_notifications_for_service(
     if client_reference is not None:
         filters.append(Notification.client_reference == client_reference)
 
-    query = Notification.query.filter(*filters)
+    if batch_id is not None:
+        filters.append(Batch.id == batch_id)
+
+    if batch_reference is not None:
+        filters.append(Batch.client_reference == batch_reference)
+
+    query = Notification.query.outerjoin(Batch).filter(*filters)
     query = _filter_query(query, filter_dict)
     if personalisation:
         query = query.options(
@@ -346,6 +379,9 @@ def delete_notifications_created_more_than_a_week_ago_by_type(notification_type)
 @statsd(namespace="dao")
 @transactional
 def dao_delete_notifications_and_history_by_id(notification_id):
+    db.session.query(ScheduledNotification).filter(
+        ScheduledNotification.notification_id == notification_id
+    ).delete(synchronize_session='fetch')
     db.session.query(Notification).filter(
         Notification.id == notification_id
     ).delete(synchronize_session='fetch')

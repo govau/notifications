@@ -2,6 +2,7 @@ from app.models import (
     NOTIFICATION_STATUS_TYPES,
     NOTIFICATION_STATUS_LETTER_ACCEPTED,
     NOTIFICATION_STATUS_LETTER_RECEIVED,
+    BATCH_MAX_NOTIFICATIONS,
     TEMPLATE_TYPES
 )
 from app.schema_validation.definitions import (uuid, personalisation, letter_personalisation, https_url)
@@ -284,4 +285,93 @@ post_letter_response = {
         "scheduled_for": {"type": "null"}
     },
     "required": ["id", "content", "uri", "template"]
+}
+
+
+batch_sms_notification_request = {
+    "type": "object",
+    "properties": {
+        "phone_number": {"type": "string", "format": "phone_number"},
+        "reference": {"type": "string"},
+        "personalisation": personalisation,
+        "sms_sender_id": uuid,
+        "status_callback_url": https_url,
+        "status_callback_bearer_token": {"type": "string", "minLength": 10},
+    },
+    "required": ["phone_number"],
+    "dependencies": {
+        "status_callback_url": {"required": ["status_callback_bearer_token"]}
+    }
+}
+
+
+batch_email_notification_request = {
+    "type": "object",
+    "properties": {
+        "email_address": {"type": "string", "format": "email_address"},
+        "reference": {"type": "string"},
+        "personalisation": personalisation,
+        "email_reply_to_id": uuid,
+        "status_callback_url": https_url,
+        "status_callback_bearer_token": {"type": "string", "minLength": 10},
+    },
+    "required": ["email_address"],
+    "dependencies": {
+        "status_callback_url": {"required": ["status_callback_bearer_token"]}
+    }
+}
+
+
+post_batch_request = {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "POST batch notifications schema",
+    "type": "object",
+    "title": "POST v2/notifications/batch",
+    "properties": {
+        "template_id": uuid,
+        "notification_type": {"enum": ["sms", "email"]},
+        "reference": {"type": "string"},
+        "email_reply_to_id": uuid,
+        "sms_sender_id": uuid,
+        "status_callback_url": https_url,
+        "status_callback_bearer_token": {"type": "string", "minLength": 10},
+        "notifications": {
+            "type": "array",
+            "maxItems": BATCH_MAX_NOTIFICATIONS,
+            "items": {"anyOf": [batch_sms_notification_request, batch_email_notification_request]}
+        },
+    },
+    "required": ["template_id", "notification_type"],
+    "dependencies": {
+        "status_callback_url": {"required": ["status_callback_bearer_token"]}
+    },
+    "additionalProperties": False
+}
+
+post_batch_notification_response = {
+    "type": "object",
+    "properties": {
+        "id": uuid,
+        "reference": {"type": ["string", "null"]},
+    },
+    "required": ["id"],
+}
+
+
+post_batch_response = {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "POST sms notification response schema",
+    "type": "object",
+    "title": "response v2/notifications/bulk",
+    "properties": {
+        "id": uuid,
+        "reference": {"type": ["string", "null"]},
+        "uri": {"type": "string", "format": "uri"},
+        "template": template,
+        "notifications": {
+            "type": "array",
+            "items": post_batch_notification_response,
+        },
+    },
+    "required": ["id", "uri", "template", "notifications"]
 }

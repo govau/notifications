@@ -16,7 +16,7 @@ from flask import json, current_app
 from app.models import Notification
 from app.schema_validation import validate
 from app.v2.errors import RateLimitError
-from app.v2.notifications.notification_schemas import post_sms_response, post_email_response
+from app.v2.notifications.notification_schemas import post_sms_response, post_email_response, post_batch_response
 from tests import create_authorization_header
 from tests.app.conftest import (
     sample_template as create_sample_template,
@@ -427,7 +427,7 @@ def test_returns_a_429_limit_exceeded_if_rate_limit_exceeded(
         notify_db_session,
         template_type=notification_type
     )
-    persist_mock = mocker.patch('app.v2.notifications.post_notifications.persist_notification')
+    persist_mock = mocker.patch('app.v2.notifications.post_notifications.store_notification')
     deliver_mock = mocker.patch('app.v2.notifications.post_notifications.send_notification_to_queue')
     mocker.patch(
         'app.v2.notifications.post_notifications.check_rate_limiting',
@@ -784,4 +784,38 @@ def test_post_email_notification_with_status_callback_returns_201(client, sample
     assert len(notifications) == 1
     assert notifications[0].status_callback_url == 'https://localhost/callback'
     assert notifications[0].status_callback_bearer_token == '1234567890'
+    assert mocked.called
+
+
+def test_post_batch_notification_returns_201(client, sample_template_with_placeholders, mocker):
+    mocked = mocker.patch('app.celery.provider_tasks.deliver_sms.apply_async')
+    data = {
+        'template_id': str(sample_template_with_placeholders.id),
+        'notification_type': 'sms',
+        'notifications': [
+            {'phone_number': '+61412345670'},
+            {'phone_number': '+61412345671'},
+            {'phone_number': '+61412345672'},
+            {'phone_number': '+61412345673'},
+            {'phone_number': '+61412345674'},
+            {'phone_number': '+61412345675'},
+            {'phone_number': '+61412345676'},
+            {'phone_number': '+61412345677'},
+            {'phone_number': '+61412345678'},
+            {'phone_number': '+61412345679'},
+        ]
+    }
+    auth_header = create_authorization_header(service_id=sample_template_with_placeholders.service_id)
+
+    response = client.post(
+        path='/v2/notifications/batch',
+        data=json.dumps(data),
+        headers=[('Content-Type', 'application/json'), auth_header])
+    print(response.json)
+    assert response.status_code == 201
+    resp_json = json.loads(response.get_data(as_text=True))
+    assert validate(resp_json, post_batch_response) == resp_json
+    notifications = Notification.query.all()
+    assert len(notifications) == 10
+    assert notifications[0].status == NOTIFICATION_CREATED
     assert mocked.called

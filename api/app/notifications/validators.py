@@ -127,7 +127,7 @@ def check_sms_content_char_count(content_count):
         raise BadRequestError(message=message)
 
 
-def validate_template(template_id, personalisation, service, notification_type):
+def validate_template_without_content(template_id, service, notification_type):
     try:
         template = templates_dao.dao_get_template_by_id_and_service_id(
             template_id=template_id,
@@ -140,6 +140,11 @@ def validate_template(template_id, personalisation, service, notification_type):
 
     check_template_is_for_notification_type(notification_type, template.template_type)
     check_template_is_active(template)
+    return template
+
+
+def validate_template(template_id, personalisation, service, notification_type):
+    template = validate_template_without_content(template_id, service, notification_type)
     template_with_content = create_content_for_notification(template, personalisation)
     if template.template_type == SMS_TYPE:
         check_sms_content_char_count(template_with_content.content_count)

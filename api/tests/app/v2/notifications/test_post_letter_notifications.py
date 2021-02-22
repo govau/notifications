@@ -250,7 +250,7 @@ def test_returns_a_429_limit_exceeded_if_rate_limit_exceeded(
     sample_letter_template,
     mocker
 ):
-    persist_mock = mocker.patch('app.v2.notifications.post_notifications.persist_notification')
+    persist_mock = mocker.patch('app.v2.notifications.post_notifications.store_notification')
     mocker.patch(
         'app.v2.notifications.post_notifications.check_rate_limiting',
         side_effect=RateLimitError('LIMIT', 'INTERVAL', 'TYPE')

@@ -369,7 +369,7 @@ class ApiKeySchema(BaseSchema):
 class JobSchema(BaseSchema):
     created_by_user = fields.Nested(UserSchema, attribute="created_by",
                                     dump_to="created_by", only=["id", "name"], dump_only=True)
-    created_by = field_for(models.Job, 'created_by', required=True, load_only=True)
+    created_by = field_for(models.Job, 'created_by', load_only=True)
 
     job_status = field_for(models.JobStatus, 'name', required=False)
 
@@ -389,6 +389,19 @@ class JobSchema(BaseSchema):
             'notifications_sent',
             'notifications_delivered',
             'notifications_failed')
+        strict = True
+
+
+class BatchSchema(BaseSchema):
+    class Meta:
+        model = models.Batch
+        exclude = (
+            "created_at",
+        )
+        load_only = (
+            "api_key",
+            "api_key_type"
+        )
         strict = True
 
 
@@ -682,6 +695,7 @@ detailed_service_schema = DetailedServiceSchema()
 template_schema = TemplateSchema()
 api_key_schema = ApiKeySchema()
 job_schema = JobSchema()
+batch_schema = BatchSchema()
 sms_admin_notification_schema = SmsAdminNotificationSchema()
 sms_template_notification_schema = SmsTemplateNotificationSchema()
 job_sms_template_notification_schema = JobSmsTemplateNotificationSchema()

@@ -44,3 +44,24 @@ def __create_notification_response(notification, url_root, scheduled_for):
         },
         "scheduled_for": scheduled_for if scheduled_for else None
     }
+
+
+def create_batch_response_from_batch(batch, url_root):
+    return {
+        "id": batch.id,
+        "reference": batch.client_reference,
+        "uri": f"{url_root}v2/batches/{batch.id}",
+        'template': {
+            "id": batch.template_id,
+            "version": batch.template_version,
+            "uri": "{}services/{}/templates/{}".format(
+                url_root,
+                str(batch.service_id),
+                str(batch.template_id)
+            )
+        },
+        "notifications": [{
+            "id": notification.id,
+            "reference": notification.client_reference
+        } for notification in batch.notifications],
+    }

@@ -70,10 +70,10 @@ class RedisClient:
             except Exception as e:
                 self.__handle_exception(e, raise_exception, 'set', key)
 
-    def incr(self, key, raise_exception=False):
+    def incr(self, key, raise_exception=False, incr_by=1):
         if self.active:
             try:
-                return self.redis_store.incr(key)
+                return self.redis_store.incr(key, amount=incr_by)
             except Exception as e:
                 self.__handle_exception(e, raise_exception, 'incr', key)
 
@@ -92,7 +92,7 @@ class RedisClient:
     def increment_hash_value(self, key, value, raise_exception=False, incr_by=1):
         if self.active:
             try:
-                return self.redis_store.hincrby(key, value, incr_by)
+                return self.redis_store.hincrby(key, value, amount=incr_by)
             except Exception as e:
                 self.__handle_exception(e, raise_exception, 'increment_hash_value', key)
 
