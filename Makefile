@@ -32,9 +32,9 @@ cf-login:
 
 cf-login-prod:
 	@$(CF) login\
-		-a "https://api.system.b.cld.gov.au"\
-		-u "${CF_B_USER}"\
-		-p "${CF_B_PASSWORD}"\
+		-a "${CF_API_PROD}"\
+		-u "${CF_USERNAME}"\
+		-p "${CF_PASSWORD_PROD}"\
 		-o "dta"\
 		-s "${CF_SPACE}"
 
