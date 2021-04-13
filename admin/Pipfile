@@ -27,6 +27,8 @@ itsdangerous = "~=1.1.0"
 email-validator = "~=1.1.2"
 pyyaml = "~=5.3"
 wtforms = "~=2.3.3"
+python-json-logger = "~=0.1.11"
+python-dotenv = "*"
 
 [dev-packages]
 bandit = "~=1.5.1"

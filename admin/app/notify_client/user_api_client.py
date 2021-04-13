@@ -1,3 +1,4 @@
+from flask import current_app
 from datetime import datetime
 from notify.errors import HTTPError
 
@@ -59,6 +60,9 @@ class UserApiClient(NotifyAdminAPIClient):
         try:
             return self.get_user_by_email(email_address)
         except HTTPError as e:
+            if e.status_code == 503:
+                current_app.logger.exception("503 - cannot connect to {}".format(self.base_url))
+                return None
             if e.status_code == 404:
                 return None
 

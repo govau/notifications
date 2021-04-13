@@ -21,13 +21,16 @@ The app runs within a virtual environment. We use pipenv for easier environment
 management
 
 ```shell
-    pip3 install --user pipenv
+    brew install pipenv rust openssl node@14
 ```
 
 Install dependencies and build the frontend assets:
 
-```shell
-    make install
+```shell 
+    export PATH="/usr/local/opt/node@14/bin:$PATH"
+    # https://github.com/pyca/cryptography/issues/5773#issuecomment-781576003
+    env LDFLAGS="-L$(brew --prefix openssl@1.1)/lib" CFLAGS="-I$(brew --prefix openssl@1.1)/include" \
+      make install
     make build-frontend
 ```
 

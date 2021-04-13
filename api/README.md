@@ -47,6 +47,12 @@ Then create a working database with the command `createdb notification_api`.
 
 Then, run `make install` to install dependencies, set up your environment and
 initialise the database.
+```
+    export PATH="/usr/local/opt/node@14/bin:$PATH"
+    # https://github.com/pyca/cryptography/issues/5773#issuecomment-781576003
+    env LDFLAGS="-L$(brew --prefix openssl@1.1)/lib" CFLAGS="-I$(brew --prefix openssl@1.1)/include" \
+      make install
+```
 
 You can run `make setup-db` whenever you need to update your database in response
 to migrations.
