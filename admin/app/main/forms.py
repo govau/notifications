@@ -1,6 +1,7 @@
 import weakref
 from datetime import datetime, timedelta
 from itertools import chain
+from flask_login import current_user
 
 import pytz
 from flask_wtf import FlaskForm as Form
@@ -23,6 +24,7 @@ from wtforms import (
     RadioField,
     StringField,
     TextAreaField,
+    SelectField,
     ValidationError,
     validators,
     widgets,
@@ -46,8 +48,8 @@ def get_time_value_and_label(future_time):
     return (
         future_time.replace(tzinfo=None).isoformat(),
         '{} at {}'.format(
-            get_human_day(future_time.astimezone(pytz.timezone('Australia/Sydney'))),
-            get_human_time(future_time.astimezone(pytz.timezone('Australia/Sydney')))
+            get_human_day(future_time.astimezone(pytz.timezone(current_user.time_zone))),
+            get_human_time(future_time.astimezone(pytz.timezone(current_user.time_zone)))
         )
     )
 
@@ -488,6 +490,15 @@ class ChangeEmailForm(StripWhitespaceForm):
 
 class ChangeMobileNumberForm(StripWhitespaceForm):
     mobile_number = international_phone_number()
+
+
+class ChangeTimeZoneForm(StripWhitespaceForm):
+    time_zone = SelectField(
+        u'Time zone',
+        choices=list(
+            filter(lambda zone: 'Australia' in zone, pytz.all_timezones)
+        ),
+    )
 
 
 class ConfirmMobileNumberForm(StripWhitespaceForm):

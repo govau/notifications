@@ -115,6 +115,7 @@ class User(db.Model):
     platform_admin = db.Column(db.Boolean, nullable=False, default=False)
     current_session_id = db.Column(UUID(as_uuid=True), nullable=True)
     auth_type = db.Column(db.String, db.ForeignKey('auth_type.name'), index=True, nullable=False, default=SMS_AUTH_TYPE)
+    time_zone = db.Column(db.String, nullable=True, default=False)
 
     # either email auth or a mobile number must be provided
     CheckConstraint("auth_type = 'email_auth' or mobile_number is not null")
@@ -178,6 +179,7 @@ class User(db.Model):
             'platform_admin': self.platform_admin,
             'services': [x.id for x in self.services if x.active],
             'state': self.state,
+            'time_zone': self.time_zone,
         }
 
 

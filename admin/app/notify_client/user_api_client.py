@@ -14,6 +14,7 @@ ALLOWED_ATTRIBUTES = {
     'mobile_number',
     'auth_type',
     'email_last_verified_at',
+    'time_zone',
 }
 
 
@@ -44,12 +45,14 @@ class UserApiClient(NotifyAdminAPIClient):
         return self._get_user(user_id)['data']
 
     def _get_user(self, user_id):
-        return self.get("/user/{}".format(user_id))
+        user = self.get("/user/{}".format(user_id))
+        return user
 
     def get_user(self, id):
         url = "/user/{}".format(id)
         user_data = self.get(url)
-        return User(user_data['data'], max_failed_login_count=self.max_failed_login_count, max_failed_verify_count=self.max_failed_verify_count)
+        user = User(user_data['data'], max_failed_login_count=self.max_failed_login_count, max_failed_verify_count=self.max_failed_verify_count)
+        return user
 
     def get_user_by_email(self, email_address):
         user_data = self.get('/user/email', params={'email': email_address})

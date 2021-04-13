@@ -1,6 +1,6 @@
 from itertools import chain
 
-from flask import request, session
+from flask import request, session, current_app
 from flask_login import AnonymousUserMixin, UserMixin
 
 roles = {
@@ -75,6 +75,7 @@ class User(UserMixin):
         self.current_session_id = fields.get('current_session_id')
         self.services = fields.get('services', [])
         self.organisations = fields.get('organisations', [])
+        self._time_zone = fields.get('time_zone')
 
     def _set_permissions(self, permissions_by_service):
         """
@@ -116,6 +117,10 @@ class User(UserMixin):
     @property
     def permissions(self):
         return self._permissions
+
+    @property
+    def time_zone(self):
+        return self._time_zone if self._time_zone else current_app.config['DEFAULT_TIMEZONE']
 
     @permissions.setter
     def permissions(self, permissions):

@@ -425,7 +425,8 @@ def get_letter_timings(upload_time):
 def gmt_timezones(date):
     date = dateutil.parser.parse(date)
     forced_utc = date.replace(tzinfo=pytz.utc)
-    return forced_utc.astimezone(pytz.timezone('Australia/Sydney'))
+    return forced_utc.astimezone(pytz.timezone(current_user.time_zone))
+    # return forced_utc.astimezone(pytz.timezone('Australia/Sydney'))
 
 
 def get_cdn_domain():

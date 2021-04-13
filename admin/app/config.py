@@ -15,6 +15,8 @@ class Config(object):
     ADMIN_SENTRY_ENV = os.environ.get('ADMIN_SENTRY_ENV')
     ADMIN_SENTRY_DSN = os.environ.get('ADMIN_SENTRY_DSN')
 
+    DEFAULT_TIMEZONE = 'Australia/Sydney'
+
     # if we're not on cloudfoundry, we can get to this app from localhost. but on cloudfoundry its different
     ADMIN_BASE_URL = os.environ.get('ADMIN_BASE_URL', 'http://localhost:6012')
 

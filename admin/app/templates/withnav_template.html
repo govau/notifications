@@ -26,6 +26,9 @@
         <main role="main" class="column-three-quarters column-main">
       {% endif %}
         {% include 'flash_messages.html' %}
+        {% if current_user.time_zone == 'Australia/Sydney' %}
+          {% include 'time_zone_prompt.html' %}
+        {% endif %}
         {% block maincolumn_content %}{% endblock %}
       </main>
     </div>

@@ -1,0 +1,20 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    var userTimeZone = '{{ current_user.time_zone }}';
+
+    if (!!browserTimeZone && (browserTimeZone !== userTimeZone)) {
+      var el = document.getElementById('time-zone-prompt');
+      el.classList.remove('is-hidden');
+    }
+  });
+</script>
+
+<div class="bottom-gutter is-hidden" id="time-zone-prompt">
+  {{ banner(
+      'Please could you update your time zone preference as it looks like you may be in a time zone other than Australia/Sydney.',
+      'default',
+      link_text='Update time zone',
+      link_url=url_for('main.user_profile_time_zone'),
+  )}}
+</div>

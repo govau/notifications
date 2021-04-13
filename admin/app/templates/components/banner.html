@@ -1,4 +1,4 @@
-{% macro banner(body, type=None, with_tick=False, delete_button=None, subhead=None) %}
+{% macro banner(body, type=None, with_tick=False, delete_button=None, subhead=None, link_text=None, link_url=None) %}
   <div
     class='banner{% if type %}-{{ type }}{% endif %}{% if with_tick %}-with-tick{% endif %}'
     {% if type == 'dangerous' %}
@@ -15,6 +15,11 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <button type="submit" class="button" name="delete">{{ delete_button }}</button>
       </form>
+    {% endif %}
+    {% if link_text and link_url %}
+      <br>
+      <br>
+      <a class="button" href={{ link_url }}>{{ link_text }}</a>
     {% endif %}
   </div>
 {% endmacro %}

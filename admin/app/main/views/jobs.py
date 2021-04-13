@@ -11,7 +11,7 @@ from flask import (
     stream_with_context,
     url_for,
 )
-from flask_login import login_required
+from flask_login import current_user, login_required
 from notifications_utils.template import Template, WithSubjectTemplate
 
 from app import (
@@ -377,7 +377,8 @@ def get_job_partials(job, template):
         ),
         'status': render_template(
             'partials/jobs/status.html',
-            job=job
+            job=job,
+            time_zone=current_user.time_zone,
         ),
     }
 

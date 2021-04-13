@@ -16,6 +16,7 @@ from app.main import main
 from app.main.forms import (
     ChangeEmailForm,
     ChangeMobileNumberForm,
+    ChangeTimeZoneForm,
     ChangeNameForm,
     ChangePasswordForm,
     ConfirmMobileNumberForm,
@@ -130,6 +131,23 @@ def user_profile_mobile_number():
         'views/user-profile/change.html',
         thing='mobile number',
         form_field=form.mobile_number
+    )
+
+
+@main.route("/user-profile/time-zone", methods=['GET', 'POST'])
+@login_required
+def user_profile_time_zone():
+
+    form = ChangeTimeZoneForm(time_zone=current_user.time_zone)
+
+    if form.validate_on_submit():
+        user_api_client.update_user_attribute(current_user.id, time_zone=form.time_zone.data)
+        return redirect(url_for('.user_profile'))
+
+    return render_template(
+        'views/user-profile/change.html',
+        thing='time zone',
+        form_field=form.time_zone
     )
 
 

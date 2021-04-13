@@ -350,7 +350,7 @@ class User(JSONModel, UserMixin):
             "failed_login_count": self.failed_login_count,
             "permissions": [x for x in self._permissions],
             "organisations": self.organisation_ids,
-            "current_session_id": self.current_session_id
+            "current_session_id": self.current_session_id,
         }
         if hasattr(self, '_password'):
             dct['password'] = self._password

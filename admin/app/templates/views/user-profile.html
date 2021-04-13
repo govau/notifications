@@ -44,6 +44,12 @@
       {{ edit_field('Change', url_for('.user_profile_password')) }}
     {% endcall %}
 
+    {% call row() %}
+      {{ text_field('Time zone') }}
+      {{ text_field(current_user.time_zone) }}
+      {{ edit_field('Change', url_for('.user_profile_time_zone')) }}
+    {% endcall %}
+
   {% endcall %}
 
 {% endblock %}
