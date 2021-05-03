@@ -1,0 +1,50 @@
+---
+lang: python
+---
+
+```python
+response = client.get_received_texts()
+```
+<Panel label={<H3 appearAs={H5}>Arguments</H3>}>
+    <Parameters>
+        <Parameter optional name="olderThanId">
+            Provide an ID of the last message retrieved in the previous request for pagination
+        </Parameter>
+    </Parameters>
+</Panel>
+
+<Panel label={<H3 appearAs={H5}>Response</H3>}>
+
+If the request is successful a `dict` is returned, for example:
+
+```json
+    {
+        'links': {
+            'current': 'https://rest-api.notify.gov.au/v2/received-text-messages',
+            'next': 'https://rest-api.notify.gov.au/v2/received-text-messages?older_than=bfb50d92-100d-4b8b-b559-14fa3b091cda'
+        },
+        'received_text_messages': [
+            {
+                'content': "Hello notify!",
+                'created_at': '2021-05-03T05:23:23.135201Z',
+                'id': 'bfb50d92-100d-4b8b-b559-14fa3b091cda',
+                'notify_number': '+61411111111',
+                'service_id': 'b19c2493-efc6-40e3-bbcb-8b2bc30dc2e1',
+                'user_number': '+61422222222'
+            }
+        ]
+    }
+    ```
+
+If no messages have been received in the last 7 days, the client returns a dict with an empty received text messages list element:
+
+```
+    {
+        'links': {
+            'current': 'https://rest-api.notify.gov.au/v2/received-text-messages'
+        },
+        'received_text_messages': []
+    }
+```
+
+</Panel>

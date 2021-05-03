@@ -120,4 +120,9 @@ The JSON message that Notify sends has this format:
 
 A simple callback handler might look like this:
 
-<Examples reference="inbound-sms-callback" title="Inbound SMS messages" />
+<Examples reference="inbound-sms-callback" title="Inbound SMS messages (callback)" />
+
+If you don't need to respond to SMS messages in real-time, there is also a get_received_texts API
+to retrieve all received messages for up to 7 days:
+
+<Examples reference="inbound-sms-batch" title="Inbound SMS messages (batch)" />
